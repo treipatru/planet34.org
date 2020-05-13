@@ -1,0 +1,30 @@
+.description {
+    margin-left: 10vw;
+    margin-top: 10vw;
+    max-width: 40vw;
+
+    @media screen and (max-width: 992px) {
+        max-width: 80vw;
+    }
+
+    h1 {
+        font-size: 2rem;
+        text-transform: capitalize;
+        margin-bottom: 1.5rem;
+    }
+
+    p {
+        font-size: 1.3rem;
+        line-height: 1.7rem;
+        margin-bottom: 1rem;
+    }
+
+    a {
+        text-decoration: none;
+        color: #24b5ff;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}

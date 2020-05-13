@@ -11,22 +11,38 @@ const Description = () => {
                 I'm Andrei, a Frontend developer and systems nerd. I work on web apps
                 trying to make interesting, interactive experience for people. A long
                 time ago I used to work in{' '}
-                <a href="https://github.com/treipatru/games" target="_blank">
+                <a
+                    href="https://github.com/treipatru/games"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
                     video games
                 </a>
                 .
             </p>
             <p>
                 Sometimes I post photos on{' '}
-                <a href="https://revelator.planet34.org/" target="_blank">
+                <a
+                    href="https://revelator.planet34.org/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
                     revelator
                 </a>
                 , or repost on{' '}
-                <a href="https://twitter.com/treipatru" target="_blank">
+                <a
+                    href="https://twitter.com/treipatru"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
                     twitter
                 </a>
                 . I try to open source my projects and they usually end up in my{' '}
-                <a href="https://github.com/treipatru" target="_blank">
+                <a
+                    href="https://github.com/treipatru"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
                     github
                 </a>
                 .

@@ -5,7 +5,7 @@ const Description = () => {
     const greeting = hellos[Math.floor(Math.random() * hellos.length)]
 
     return (
-        <div className="description">
+        <section className="description">
             <h1>{greeting}</h1>
             <p>
                 I'm Andrei, a Frontend developer and systems nerd. I work on web apps
@@ -52,7 +52,7 @@ const Description = () => {
                 {greeting} just send me an e-mail at{' '}
                 <a href="mailto:andrei@planet34.org">andrei@planet34.org</a>.
             </p>
-        </div>
+        </section>
     )
 }
 

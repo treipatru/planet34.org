@@ -1,10 +1,12 @@
 @import 'Reset';
 @import 'Description';
+@import 'GameOfLife';
 
 body {
     font-family: 'DM Mono', monospace;
     color: #dddddd;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     background-attachment: fixed;
     background: #2b5876; /* fallback for old browsers */
     background: -webkit-linear-gradient(

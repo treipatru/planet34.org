@@ -9,8 +9,8 @@ const Description = () => {
             <h1>{greeting}</h1>
             <p>
                 I'm Andrei, a Frontend developer and systems nerd. I work on web apps
-                trying to make interesting, interactive experience for people. A long
-                time ago I used to work in{' '}
+                trying to make interesting, interactive experiences for people. A
+                long time ago I used to work in{' '}
                 <a
                     href="https://github.com/treipatru/games"
                     target="_blank"
@@ -28,8 +28,8 @@ const Description = () => {
                     rel="noopener noreferrer"
                 >
                     revelator
-                </a>
-                , or repost on{' '}
+                </a>{' '}
+                or repost on{' '}
                 <a
                     href="https://twitter.com/treipatru"
                     target="_blank"

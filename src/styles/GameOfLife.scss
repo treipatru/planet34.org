@@ -1,0 +1,24 @@
+#game-of-life {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    font-family: 'Ubuntu Mono', monospace;
+    opacity: 0.3;
+    user-select: none;
+    font-size: 20px;
+    line-height: 24px;
+    font-stretch: expanded;
+
+    #test-char {
+        position: fixed;
+        left: 0;
+        top: 0;
+    }
+
+    .row {
+        display: block;
+        span.alive {
+            box-shadow: 1px 1px 5px 2px rgba(221, 221, 221, 1);
+        }
+    }
+}

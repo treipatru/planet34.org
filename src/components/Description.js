@@ -9,16 +9,7 @@ const Description = () => {
             <h1>{greeting}</h1>
             <p>
                 I'm Andrei, a Frontend developer and systems nerd. I work on web apps
-                trying to make interesting, interactive experiences for people. A
-                long time ago I used to work in{' '}
-                <a
-                    href="https://github.com/treipatru/games"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    video games
-                </a>
-                .
+                trying to make interesting, interactive experiences for people.
             </p>
             <p>
                 Sometimes I post photos on{' '}
@@ -37,7 +28,7 @@ const Description = () => {
                 >
                     twitter
                 </a>
-                . I try to open source my projects and they usually end up in my{' '}
+                . Some of my projects are on{' '}
                 <a
                     href="https://github.com/treipatru"
                     target="_blank"
@@ -49,8 +40,8 @@ const Description = () => {
             </p>
             <p>
                 If you are interested in working together or just want to say{' '}
-                {greeting} just send me an e-mail at{' '}
-                <a href="mailto:andrei@planet34.org">andrei@planet34.org</a>.
+                {greeting} send me an <a href="mailto:andrei@planet34.org">e-mail</a>
+                .
             </p>
         </section>
     )

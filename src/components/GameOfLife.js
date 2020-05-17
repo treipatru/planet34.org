@@ -95,21 +95,32 @@ class GameOfLife extends React.Component {
         return next
     }
 
-    componentDidMount() {
+    newBoard() {
         // Init first iteration board
         const testChar = document.getElementById('test-char')
         const cols = () =>
             Math.floor(this.props.viewSize.width / testChar.offsetWidth)
         const rows = () =>
             Math.floor(this.props.viewSize.height / testChar.offsetHeight + 1)
+        const newBoard = this.generateBoard(cols(), rows())
 
-        this.setState({ board: this.generateBoard(cols(), rows()) })
+        this.setState({ board: [...newBoard] })
+    }
 
-        // Run simulation
+    componentDidMount() {
+        this.newBoard()
+
+        // Set animation loop
         setInterval(() => {
             this.setState({ board: this.nextFrame(this.state.board) })
             this.setState({ iteration: this.state.iteration + 1 })
         }, 3000)
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.viewSize !== this.props.viewSize) {
+            this.newBoard()
+        }
     }
 
     render() {

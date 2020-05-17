@@ -17,7 +17,7 @@ class GameOfLife extends React.Component {
         for (let i = 0; i < rows; i++) {
             arr[i] = []
             for (let j = 0; j < cols; j++) {
-                arr[i][j] = this.randomCellLife(5)
+                arr[i][j] = this.randomCellLife(8)
             }
         }
 
@@ -113,7 +113,7 @@ class GameOfLife extends React.Component {
         setInterval(() => {
             this.setState({ board: this.nextFrame(this.state.board) })
             this.setState({ iteration: this.state.iteration + 1 })
-        }, 1000)
+        }, 3000)
     }
 
     render() {

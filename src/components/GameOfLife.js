@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 class GameOfLife extends React.Component {
     constructor(props) {
@@ -97,15 +98,10 @@ class GameOfLife extends React.Component {
     componentDidMount() {
         // Init first iteration board
         const testChar = document.getElementById('test-char')
-        const cols = () => {
-            const w = document.getElementById('game-of-life').offsetWidth
-            return Math.floor(w / testChar.offsetWidth)
-        }
-
-        const rows = () => {
-            const h = document.getElementById('game-of-life').offsetHeight
-            return Math.floor(h / testChar.offsetHeight + 1)
-        }
+        const cols = () =>
+            Math.floor(this.props.viewSize.width / testChar.offsetWidth)
+        const rows = () =>
+            Math.floor(this.props.viewSize.height / testChar.offsetHeight + 1)
 
         this.setState({ board: this.generateBoard(cols(), rows()) })
 
@@ -140,6 +136,10 @@ class GameOfLife extends React.Component {
             </div>
         )
     }
+}
+
+GameOfLife.propTypes = {
+    viewSize: PropTypes.object.isRequired,
 }
 
 export default GameOfLife

@@ -10,9 +10,9 @@
     font-stretch: expanded;
 
     #test-char {
-        position: fixed;
-        left: 0;
-        top: 0;
+        position: absolute;
+        left: -100rem;
+        top: -100rem;
     }
 
     .row {

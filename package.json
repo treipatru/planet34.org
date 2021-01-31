@@ -1,0 +1,16 @@
+{
+  "name": "planet34.org",
+  "private": true,
+  "description": "The 34th planet and beyond",
+  "version": "5.0.0",
+  "license": "UNLICENSED",
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4"
+  },
+  "scripts": {
+    "dev": "parcel src/index.html",
+    "build": "parcel build src/index.html"
+  }
+}

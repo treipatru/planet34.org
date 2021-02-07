@@ -1,4 +1,4 @@
-import GoL from './GoL.js';
+import BackgroundAnimator from './BackgroundAnimator';
 
-const backBoard = new GoL('backg', 100, 5000);
-backBoard.start();
+const backgroundAnimation = new BackgroundAnimator('backg', 75, 7500);
+setInterval(backgroundAnimation.animateCell, 1000);

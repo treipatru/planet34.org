@@ -8,13 +8,14 @@ body, html {
 
 #backg {
     background-color: #282C34;
-    filter: blur(10px);
+    filter: blur(8px);
     height: 100vh;
     left: 0;
     position: fixed;
     top: 0;
     width: 100vw;
     z-index: -1;
+    transform: scale(1.2);
 }
 
 .row {

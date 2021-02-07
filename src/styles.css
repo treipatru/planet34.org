@@ -8,14 +8,12 @@ body, html {
 
 #backg {
     background-color: #282C34;
-    filter: blur(8px);
     height: 100vh;
     left: 0;
     position: fixed;
     top: 0;
     width: 100vw;
     z-index: -1;
-    transform: scale(1.2);
 }
 
 .row {
@@ -33,9 +31,21 @@ body, html {
     justify-content: center;
 }
 
+.prompt-wrap {
+    display: flex;
+    align-items: center;
+}
+
+.prompt-wrap > span {
+    font-size: 1.3rem;
+}
+
+#prompt {
+    display: inline;
+    margin: 0;
+}
+
 main {
-    background-color: rgba(40, 44, 52, 0.9);
-    border-radius: 7px;
     color: #ABB2BF;
     margin:0 5vw;
     max-width: 60ch;
@@ -52,8 +62,4 @@ a {
     font-weight: 600;
     text-decoration: none;
     transition: color 300ms ease-in;
-}
-
-a:hover {
-    color: #98C379;
 }

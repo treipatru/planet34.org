@@ -9,7 +9,7 @@
     "build": "parcel build src/index.html"
   },
   "dependencies": {
-    "popmotion": "^9.1.0"
+    "typed.js": "^2.0.11"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.12.13",

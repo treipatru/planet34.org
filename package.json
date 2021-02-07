@@ -12,6 +12,7 @@
     "popmotion": "^9.1.0"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.12.13",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.19.0",
     "eslint-config-airbnb": "^18.2.1",
@@ -19,5 +20,6 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.22.0",
     "parcel-bundler": "^1.12.4"
-  }
+  },
+  "browserslist": "> 0.25%, not dead"
 }

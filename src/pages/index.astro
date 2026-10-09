@@ -1,45 +1,438 @@
----
-import Layout from '../layouts/Layout.astro';
----
+<!doctype html>
+<html lang='en'>
+	<head>
+		<meta charset='utf-8' />
+		<meta
+			name='viewport'
+			content='width=device-width, initial-scale=1'
+		/>
+		<title>planet34</title>
+		<meta
+			name='description'
+			content='Andrei — software developer, Paris.'
+		/>
+		<style is:inline>
+			:root {
+				--bg: #0a0c0b;
+				--fg: #a6e3ae;
+				--dim: #5d8463;
+				--accent: #e8f6ea;
+				color-scheme: dark light;
+			}
+			@media (prefers-color-scheme: light) {
+				:root {
+					--bg: #f1ede3;
+					--fg: #2b2721;
+					--dim: #8a8172;
+					--accent: #000;
+				}
+			}
+			* {
+				box-sizing: border-box;
+			}
+			html,
+			body {
+				margin: 0;
+				height: 100%;
+				background: var(--bg);
+				color: var(--fg);
+				overflow: hidden;
+			}
+			body {
+				font-family:
+					ui-monospace, 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas,
+					monospace;
+			}
+			#sky {
+				position: fixed;
+				inset: 0;
+				margin: 0;
+				font: inherit;
+				font-size: clamp(9px, 1.05vw, 13px);
+				line-height: 1.15em;
+				white-space: pre;
+				color: var(--fg);
+				user-select: none;
+				pointer-events: none;
+				overflow: hidden;
+			}
+			main {
+				position: fixed;
+				left: clamp(16px, 4vw, 48px);
+				bottom: clamp(16px, 4vh, 48px);
+				max-width: calc(100vw - 32px);
+				font-size: 13px;
+				line-height: 1.6;
+				text-shadow:
+					0 0 6px var(--bg),
+					0 0 2px var(--bg),
+					0 0 1px var(--bg);
+			}
+			h1 {
+				font: inherit;
+				font-weight: 700;
+				color: var(--accent);
+				margin: 0;
+			}
+			p {
+				margin: 0;
+			}
+			.dim {
+				color: var(--dim);
+			}
+			a {
+				color: var(--accent);
+				text-decoration: none;
+				border-bottom: 1px solid var(--dim);
+			}
+			a:hover {
+				border-color: var(--accent);
+			}
+		</style>
+	</head>
+	<body>
+		<pre
+			id='sky'
+			aria-hidden='true'>
+		</pre>
 
-<Layout title='planet34.org'>
-	<main
-		class='flex flex-col gap-y-3 text-xl font-body ml-2 md:ml-24 p-4 max-w-3xl rounded-md'
-	>
-		<h1 class='font-header text-8xl'>Hi</h1>
-
-		<p>
-			I'm Andrei,a Frontend developer and systems nerd. I work with web
-			technologies to make interactive experiences for people.
-		</p>
-
-		<p>
-			You can find me on
-			<a
-				href='https://github.com/treipatru'
-				target='__blank'
-				>github</a
+		<main>
+			<h1>planet34.org</h1>
+			<p>andrei — software engineer, paris</p>
+			<p>&gt; <a href='mailto:hello@planet34.org'>hello@planet34.org</a></p>
+			<p
+				class='dim'
+				id='clock'
 			>
-			and
-			<a
-				href='https://fosstodon.org/@treipatru'
-				target='__blank'
-				>mastodon</a
-			>.
-		</p>
+				&nbsp;
+			</p>
+		</main>
 
-		<p>
-			Sometimes I post photos on
-			<a
-				href='https://revelator.planet34.org'
-				target='__blank'
-				>revelator</a
-			>, a photo blog I've been maintaining on and off over the years.
-		</p>
+		<script is:inline>
+			(() => {
+				const pre = document.getElementById('sky');
+				const clockEl = document.getElementById('clock');
+				const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-		<p>
-			If you are interested in working together or just want to say hi, send me
-			an <a href='mailto:andrei@planet34.org'>e-mail</a>.
-		</p>
-	</main>
-</Layout>
+				// Character ramps, dark → bright
+				const LAND = ' .:-=+*#%@';
+				const OCEAN = ' .,-~~=';
+				const RING = ' .-:=+';
+
+				// ---------- math helpers ----------
+				const norm = (v) => {
+					const l = Math.hypot(v[0], v[1], v[2]);
+					return [v[0] / l, v[1] / l, v[2] / l];
+				};
+				const cross = (a, b) => [
+					a[1] * b[2] - a[2] * b[1],
+					a[2] * b[0] - a[0] * b[2],
+					a[0] * b[1] - a[1] * b[0],
+				];
+				const idx = (ramp, v) =>
+					Math.min(ramp.length - 1, Math.max(0, Math.floor(v * ramp.length)));
+
+				function hash3(i, j, k) {
+					let h =
+						Math.imul(i | 0, 374761393) ^
+						Math.imul(j | 0, 668265263) ^
+						Math.imul(k | 0, 1274126177);
+					h = Math.imul(h ^ (h >>> 13), 1274126177);
+					h ^= h >>> 16;
+					return (h >>> 0) / 4294967296;
+				}
+
+				function noise3(x, y, z) {
+					const xi = Math.floor(x),
+						yi = Math.floor(y),
+						zi = Math.floor(z);
+					const xf = x - xi,
+						yf = y - yi,
+						zf = z - zi;
+					const u = xf * xf * (3 - 2 * xf),
+						v = yf * yf * (3 - 2 * yf),
+						w = zf * zf * (3 - 2 * zf);
+					const a = hash3(xi, yi, zi),
+						b = hash3(xi + 1, yi, zi);
+					const c = hash3(xi, yi + 1, zi),
+						d = hash3(xi + 1, yi + 1, zi);
+					const e = hash3(xi, yi, zi + 1),
+						f = hash3(xi + 1, yi, zi + 1);
+					const g = hash3(xi, yi + 1, zi + 1),
+						h = hash3(xi + 1, yi + 1, zi + 1);
+					const x1 = a + (b - a) * u,
+						x2 = c + (d - c) * u,
+						x3 = e + (f - e) * u,
+						x4 = g + (h - g) * u;
+					const y1 = x1 + (x2 - x1) * v,
+						y2 = x3 + (x4 - x3) * v;
+					return y1 + (y2 - y1) * w;
+				}
+
+				function fbm(x, y, z) {
+					let s = 0,
+						a = 0.5;
+					for (let o = 0; o < 4; o++) {
+						s += a * noise3(x, y, z);
+						x *= 2.03;
+						y *= 2.03;
+						z *= 2.03;
+						a *= 0.5;
+					}
+					return s / 0.9375;
+				}
+
+				// Planet spin axis (also the ring's normal), tilted toward the viewer
+				const A = norm([-0.32, 0.9, 0.3]);
+				const U = norm([A[1], -A[0], 0]);
+				const V = cross(U, A);
+
+				// ---------- Paris time ----------
+				const fmt = new Intl.DateTimeFormat('en-GB', {
+					timeZone: 'Europe/Paris',
+					hour: '2-digit',
+					minute: '2-digit',
+					second: '2-digit',
+					hourCycle: 'h23',
+				});
+				let hours = 12;
+				function tickClock() {
+					const p = fmt.formatToParts(new Date());
+					const g = (t) => +p.find((x) => x.type === t).value;
+					hours = g('hour') + g('minute') / 60 + g('second') / 3600;
+					const phase =
+						hours < 5
+							? 'night'
+							: hours < 8
+								? 'dawn'
+								: hours < 18
+									? 'day'
+									: hours < 21.5
+										? 'dusk'
+										: 'night';
+					const hh = String(g('hour')).padStart(2, '0'),
+						mm = String(g('minute')).padStart(2, '0');
+					clockEl.textContent = `paris ${hh}:${mm} · ${phase} on planet34`;
+				}
+				tickClock();
+				setInterval(tickClock, 1000);
+
+				// ---------- grid ----------
+				let cols = 0,
+					rows = 0,
+					cw = 8,
+					ch = 14,
+					grid = [];
+				function measure() {
+					const s = document.createElement('span');
+					s.textContent = 'M'.repeat(100);
+					s.style.cssText =
+						'position:absolute;visibility:hidden;white-space:pre';
+					pre.appendChild(s);
+					cw = s.getBoundingClientRect().width / 100;
+					s.remove();
+					ch = parseFloat(getComputedStyle(pre).lineHeight);
+					cols = Math.ceil(innerWidth / cw);
+					rows = Math.ceil(innerHeight / ch);
+					grid = Array.from({ length: rows }, () => new Array(cols).fill(' '));
+				}
+				measure();
+				addEventListener('resize', measure);
+
+				// ---------- pointer ----------
+				let mx = 0,
+					my = 0,
+					tmx = 0,
+					tmy = 0;
+				addEventListener('pointermove', (e) => {
+					tmx = (e.clientX / innerWidth) * 2 - 1;
+					tmy = (e.clientY / innerHeight) * 2 - 1;
+				});
+
+				// ---------- comet ----------
+				let comet = null;
+				let nextComet = performance.now() + 8000 + Math.random() * 12000;
+				function spawnComet(now) {
+					const ltr = Math.random() < 0.5;
+					const speed = 30 + Math.random() * 25;
+					const ang =
+						(0.1 + Math.random() * 0.25) * (Math.random() < 0.5 ? 1 : -1);
+					comet = {
+						x: ltr ? -4 : cols + 4,
+						y: rows * (0.1 + Math.random() * 0.6),
+						vx: (ltr ? 1 : -1) * speed * Math.cos(ang),
+						vy: speed * Math.sin(ang) * (cw / ch),
+						last: now,
+					};
+				}
+				function drawComet(now) {
+					if (!comet && now > nextComet) spawnComet(now);
+					if (!comet) return;
+					const dt = (now - comet.last) / 1000;
+					comet.last = now;
+					comet.x += comet.vx * dt;
+					comet.y += comet.vy * dt;
+					const l = Math.hypot(comet.vx, comet.vy);
+					const dx = comet.vx / l,
+						dy = comet.vy / l;
+					for (let k = 16; k >= 0; k--) {
+						const c = Math.round(comet.x - dx * k),
+							r = Math.round(comet.y - dy * k);
+						if (r < 0 || r >= rows || c < 0 || c >= cols) continue;
+						grid[r][c] = k === 0 ? '*' : k < 4 ? '+' : k < 9 ? ':' : '.';
+					}
+					if (
+						comet.x < -24 ||
+						comet.x > cols + 24 ||
+						comet.y < -24 ||
+						comet.y > rows + 24
+					) {
+						comet = null;
+						nextComet = now + 40000 + Math.random() * 50000;
+					}
+				}
+
+				// ---------- render ----------
+				function render(now) {
+					const t = now / 1000;
+					const spin = reduce ? 0.6 : t * 0.07;
+					const cs = Math.cos(spin),
+						sn = Math.sin(spin);
+
+					mx += (tmx - mx) * 0.05;
+					my += (tmy - my) * 0.05;
+
+					// Light follows Paris time: lit face at noon, thin crescent at midnight
+					// full turn per day: lit face at noon, backlit eclipse with city lights at midnight
+					const th = ((hours - 12) / 24) * Math.PI * 2 + 0.5 + mx * 0.8;
+					const L = norm([Math.sin(th), 0.28 - my * 0.35, Math.cos(th)]);
+
+					const W = innerWidth,
+						H = innerHeight;
+					const narrow = W < 700;
+					const cx = W / 2,
+						cy = narrow ? H * 0.4 : H * 0.47;
+					const Rp = Math.min(W, H) * (narrow ? 0.21 : 0.22);
+					const ringLight =
+						0.35 + 0.45 * Math.abs(A[0] * L[0] + A[1] * L[1] + A[2] * L[2]);
+					const starT = Math.floor(t * 0.7);
+
+					for (let r = 0; r < rows; r++) {
+						const row = grid[r];
+						const y = -((r + 0.5) * ch - cy) / Rp;
+						for (let c = 0; c < cols; c++) {
+							const x = ((c + 0.5) * cw - cx) / Rp;
+							const d = x * x + y * y;
+							let chr = null;
+
+							if (d < 4.6) {
+								// Ring: intersect a view ray with the plane perpendicular to A
+								const tz = -(A[0] * x + A[1] * y) / A[2];
+								const rr2 = d + tz * tz;
+								if (
+									rr2 > 1.8225 &&
+									rr2 < 4.41 &&
+									(d >= 1 || tz > Math.sqrt(1 - d))
+								) {
+									const rr = Math.sqrt(rr2);
+									if (rr < 1.72 || rr > 1.78) {
+										let dens =
+											0.55 + 0.45 * Math.sin(rr * 31) * Math.cos(rr * 9.7);
+										dens *= Math.min(1, (rr - 1.35) * 6, (2.1 - rr) * 6);
+										const dl = x * L[0] + y * L[1] + tz * L[2];
+										const shadowed = dl < 0 && rr2 - dl * dl < 1;
+										const ch_ =
+											RING[
+												idx(
+													RING,
+													dens * ringLight * 1.25 * (shadowed ? 0.08 : 1),
+												)
+											];
+										if (ch_ !== ' ') chr = ch_;
+									}
+								}
+
+								if (chr === null && d < 1) {
+									// Planet surface
+									const z = Math.sqrt(1 - d);
+									const ndl = x * L[0] + y * L[1] + z * L[2];
+									const lx = x * U[0] + y * U[1] + z * U[2];
+									const ly = x * A[0] + y * A[1] + z * A[2];
+									const lz = x * V[0] + y * V[1] + z * V[2];
+									const sx = lx * cs - lz * sn,
+										sz = lx * sn + lz * cs;
+									const hgt = fbm(
+										sx * 1.7 + 11.3,
+										ly * 1.7 + 3.1,
+										sz * 1.7 + 7.7,
+									);
+									const b = Math.max(0, ndl);
+									const limb = 0.75 + 0.25 * z;
+
+									if (Math.abs(ly) > 0.84 - (hgt - 0.5) * 0.4) {
+										chr = LAND[idx(LAND, 0.12 + b * 0.95)]; // ice caps
+									} else if (hgt > 0.53) {
+										if (b < 0.04) {
+											// city lights on the night side
+											const cl = hash3(
+												Math.floor(sx * 38),
+												Math.floor(ly * 38),
+												Math.floor(sz * 38),
+											);
+											chr = cl > 0.95 ? (cl > 0.985 ? '*' : '+') : '.'; // faint earthshine on land
+										} else {
+											chr =
+												LAND[
+													idx(
+														LAND,
+														0.11 + b * limb * (0.75 + (hgt - 0.53) * 1.5),
+													)
+												];
+										}
+									} else {
+										const Rz = 2 * ndl * z - L[2]; // sun glint on the ocean
+										chr =
+											b > 0.2 && Rz > 0.965
+												? Rz > 0.99
+													? '*'
+													: 'o'
+												: OCEAN[idx(OCEAN, b * limb * 0.85)];
+									}
+								} else if (chr === null && d < 1.15) {
+									// Atmosphere rim
+									const hb = (x * L[0] + y * L[1]) / Math.sqrt(d);
+									if (hb > 0.25) chr = d < 1.06 ? ':' : '.';
+								}
+							}
+
+							if (chr === null) {
+								// Background stars
+								const hs = hash3(c, r, 91);
+								if (hs > 0.993) {
+									chr =
+										hash3(c, r, starT) > 0.85 ? ' ' : hs > 0.998 ? '+' : '.';
+								} else chr = ' ';
+							}
+							row[c] = chr;
+						}
+					}
+
+					if (!reduce) drawComet(now);
+
+					let out = '';
+					for (let r = 0; r < rows; r++) out += grid[r].join('') + '\n';
+					pre.textContent = out;
+				}
+
+				let last = 0;
+				function loop(now) {
+					requestAnimationFrame(loop);
+					if (now - last < (reduce ? 2000 : 33)) return;
+					last = now;
+					render(now);
+				}
+				requestAnimationFrame(loop);
+			})();
+		</script>
+	</body>
+</html>

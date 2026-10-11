@@ -11,7 +11,7 @@
 			name='description'
 			content='Andrei — software developer, Paris.'
 		/>
-		<style is:inline>
+		<style>
 			:root {
 				--bg: #0a0c0b;
 				--fg: #a6e3ae;
@@ -39,9 +39,8 @@
 				overflow: hidden;
 			}
 			body {
-				font-family:
-					ui-monospace, 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas,
-					monospace;
+				font-family: ui-monospace, 'JetBrains Mono', 'SFMono-Regular', Menlo,
+					Consolas, monospace;
 			}
 			#sky {
 				position: fixed;
@@ -55,6 +54,17 @@
 				user-select: none;
 				pointer-events: none;
 				overflow: hidden;
+			}
+			/* Phones: tiny glyphs (crisp on high-DPI screens) so the planet gets more detail than on desktop */
+			@media (max-width: 699px) {
+				#sky {
+					font-size: 6.5px;
+				}
+				html,
+				body {
+					touch-action: none;
+					overscroll-behavior: none;
+				}
 			}
 			main {
 				position: fixed;
@@ -108,7 +118,7 @@
 			</p>
 		</main>
 
-		<script is:inline>
+		<script>
 			(() => {
 				const pre = document.getElementById('sky');
 				const clockEl = document.getElementById('clock');
@@ -239,27 +249,68 @@
 				measure();
 				addEventListener('resize', measure);
 
-				// ---------- pointer ----------
+				// ---------- pointer / touch ----------
+				let curRp = 200;
+				const SPIN_DIR = -1;
 				let mx = 0,
 					my = 0,
 					tmx = 0,
 					tmy = 0;
+				let spinOffset = 0,
+					spinVel = 0,
+					drag = null;
 				addEventListener('pointermove', (e) => {
-					tmx = (e.clientX / innerWidth) * 2 - 1;
-					tmy = (e.clientY / innerHeight) * 2 - 1;
+					if (e.pointerType === 'mouse') {
+						tmx = (e.clientX / innerWidth) * 2 - 1;
+						tmy = (e.clientY / innerHeight) * 2 - 1;
+					}
+					if (!drag) return;
+					const now = performance.now();
+					const d = (SPIN_DIR * (e.clientX - drag.x)) / curRp;
+					spinOffset += d;
+					spinVel = (d / Math.max(8, now - drag.t)) * 1000;
+					if (
+						Math.abs(e.clientX - drag.x0) + Math.abs(e.clientY - drag.y0) >
+						10
+					)
+						drag.moved = true;
+					drag.x = e.clientX;
+					drag.t = now;
 				});
+				addEventListener('pointerdown', (e) => {
+					if (e.target.closest && e.target.closest('a')) return;
+					drag = {
+						x: e.clientX,
+						x0: e.clientX,
+						y0: e.clientY,
+						t: performance.now(),
+						moved: false,
+					};
+					spinVel = 0;
+				});
+				const endDrag = (e) => {
+					if (!drag) return;
+					if (!drag.moved && e.type === 'pointerup' && !comet)
+						spawnComet(performance.now(), e.clientY / ch);
+					if (performance.now() - drag.t > 80) spinVel = 0; // held still before release: no fling
+					drag = null;
+				};
+				addEventListener('pointerup', endDrag);
+				addEventListener('pointercancel', endDrag);
 
 				// ---------- comet ----------
 				let comet = null;
-				let nextComet = performance.now() + 8000 + Math.random() * 12000;
-				function spawnComet(now) {
+				let nextComet =
+					performance.now() +
+					(innerWidth < 700 ? 2500 : 8000 + Math.random() * 12000);
+				function spawnComet(now, atRow) {
 					const ltr = Math.random() < 0.5;
-					const speed = 30 + Math.random() * 25;
+					const speed = ((30 + Math.random() * 25) * 7.8) / cw; // same on-screen speed at any glyph size
 					const ang =
 						(0.1 + Math.random() * 0.25) * (Math.random() < 0.5 ? 1 : -1);
 					comet = {
 						x: ltr ? -4 : cols + 4,
-						y: rows * (0.1 + Math.random() * 0.6),
+						y: atRow != null ? atRow : rows * (0.1 + Math.random() * 0.6),
 						vx: (ltr ? 1 : -1) * speed * Math.cos(ang),
 						vy: speed * Math.sin(ang) * (cw / ch),
 						last: now,
@@ -275,17 +326,19 @@
 					const l = Math.hypot(comet.vx, comet.vy);
 					const dx = comet.vx / l,
 						dy = comet.vy / l;
-					for (let k = 16; k >= 0; k--) {
+					const K = Math.round((16 * 7.8) / cw);
+					for (let k = K; k >= 0; k--) {
 						const c = Math.round(comet.x - dx * k),
 							r = Math.round(comet.y - dy * k);
 						if (r < 0 || r >= rows || c < 0 || c >= cols) continue;
-						grid[r][c] = k === 0 ? '*' : k < 4 ? '+' : k < 9 ? ':' : '.';
+						const f = k / K;
+						grid[r][c] = k === 0 ? '*' : f < 0.25 ? '+' : f < 0.56 ? ':' : '.';
 					}
 					if (
-						comet.x < -24 ||
-						comet.x > cols + 24 ||
-						comet.y < -24 ||
-						comet.y > rows + 24
+						comet.x < -K - 8 ||
+						comet.x > cols + K + 8 ||
+						comet.y < -K - 8 ||
+						comet.y > rows + K + 8
 					) {
 						comet = null;
 						nextComet = now + 40000 + Math.random() * 50000;
@@ -295,14 +348,17 @@
 				// ---------- render ----------
 				function render(now) {
 					const t = now / 1000;
-					const spin = reduce ? 0.6 : t * 0.07;
+					if (!drag) {
+						spinOffset += spinVel / 30;
+						spinVel *= 0.94;
+					}
+					const spin = (reduce ? 0.6 : t * 0.07) + spinOffset;
 					const cs = Math.cos(spin),
 						sn = Math.sin(spin);
 
 					mx += (tmx - mx) * 0.05;
 					my += (tmy - my) * 0.05;
 
-					// Light follows Paris time: lit face at noon, thin crescent at midnight
 					// full turn per day: lit face at noon, backlit eclipse with city lights at midnight
 					const th = ((hours - 12) / 24) * Math.PI * 2 + 0.5 + mx * 0.8;
 					const L = norm([Math.sin(th), 0.28 - my * 0.35, Math.cos(th)]);
@@ -310,9 +366,13 @@
 					const W = innerWidth,
 						H = innerHeight;
 					const narrow = W < 700;
+					// Phones: planet fills ~75% of the width; the ring is allowed to run off the edges
 					const cx = W / 2,
-						cy = narrow ? H * 0.4 : H * 0.47;
-					const Rp = Math.min(W, H) * (narrow ? 0.21 : 0.22);
+						cy = narrow ? H * 0.38 : H * 0.47;
+					const Rp = narrow
+						? Math.min(W * 0.37, H * 0.26)
+						: Math.min(W, H) * 0.22;
+					curRp = Rp;
 					const ringLight =
 						0.35 + 0.45 * Math.abs(A[0] * L[0] + A[1] * L[1] + A[2] * L[2]);
 					const starT = Math.floor(t * 0.7);

@@ -3,15 +3,7 @@
 	--fg: #a6e3ae;
 	--dim: #5d8463;
 	--accent: #e8f6ea;
-	color-scheme: dark light;
-}
-@media (prefers-color-scheme: light) {
-	:root {
-		--bg: #f1ede3;
-		--fg: #2b2721;
-		--dim: #8a8172;
-		--accent: #000;
-	}
+	color-scheme: dark;
 }
 * {
 	box-sizing: border-box;

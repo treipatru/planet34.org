@@ -1,0 +1,45 @@
+<main>
+	<p>andrei — software engineer</p>
+	<p>&gt; <a href='mailto:hello@planet34.org'>hello@planet34.org</a></p>
+	<p
+		class='dim'
+		id='clock'
+	>
+		&nbsp;
+	</p>
+</main>
+
+<style>
+	main {
+		position: fixed;
+		left: clamp(16px, 4vw, 48px);
+		bottom: clamp(16px, 4vh, 48px);
+		max-width: calc(100vw - 32px);
+		font-size: 13px;
+		line-height: 1.6;
+		text-shadow:
+			0 0 6px var(--bg),
+			0 0 2px var(--bg),
+			0 0 1px var(--bg);
+	}
+	p {
+		margin: 0;
+	}
+	.dim {
+		color: var(--dim);
+	}
+	a {
+		color: var(--accent);
+		text-decoration: none;
+		border-bottom: 1px solid var(--dim);
+	}
+	a:hover {
+		border-color: var(--accent);
+	}
+</style>
+
+<script>
+	import { startClock } from '../scripts/clock';
+
+	startClock(document.getElementById('clock')!);
+</script>

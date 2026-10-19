@@ -1,0 +1,38 @@
+:root {
+	--bg: #0a0c0b;
+	--fg: #a6e3ae;
+	--dim: #5d8463;
+	--accent: #e8f6ea;
+	color-scheme: dark light;
+}
+@media (prefers-color-scheme: light) {
+	:root {
+		--bg: #f1ede3;
+		--fg: #2b2721;
+		--dim: #8a8172;
+		--accent: #000;
+	}
+}
+* {
+	box-sizing: border-box;
+}
+html,
+body {
+	margin: 0;
+	height: 100%;
+	background: var(--bg);
+	color: var(--fg);
+	overflow: hidden;
+}
+body {
+	font-family: ui-monospace, 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas,
+		monospace;
+}
+/* Phones: dragging spins the planet, so the page itself must not pan or bounce */
+@media (max-width: 699px) {
+	html,
+	body {
+		touch-action: none;
+		overscroll-behavior: none;
+	}
+}

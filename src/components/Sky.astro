@@ -1,0 +1,32 @@
+<pre
+	id='sky'
+	aria-hidden='true'>
+</pre>
+
+<style>
+	#sky {
+		position: fixed;
+		inset: 0;
+		margin: 0;
+		font: inherit;
+		font-size: clamp(9px, 1.05vw, 13px);
+		line-height: 1.15em;
+		white-space: pre;
+		color: var(--fg);
+		user-select: none;
+		pointer-events: none;
+		overflow: hidden;
+	}
+	/* Phones: tiny glyphs (crisp on high-DPI screens) so the planet gets more detail than on desktop */
+	@media (max-width: 699px) {
+		#sky {
+			font-size: 6.5px;
+		}
+	}
+</style>
+
+<script>
+	import { startSky } from '../scripts/sky/render';
+
+	startSky(document.getElementById('sky')!);
+</script>

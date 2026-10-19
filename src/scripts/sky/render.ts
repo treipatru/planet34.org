@@ -104,10 +104,11 @@ function render(pre: HTMLElement, now: number) {
 									: 'o'
 								: OCEAN[idx(OCEAN, b * limb * 0.85)];
 					}
-				} else if (chr === null && d < 1.15) {
-					// Atmosphere rim
+				} else if (chr === null && d < 1.12) {
+					// Atmosphere rim: brightest at the sunlit limb, fading outward and toward the terminator
 					const hb = (x * L[0] + y * L[1]) / Math.sqrt(d);
-					if (hb > 0.25) chr = d < 1.06 ? ':' : '.';
+					const glow = (hb * (1.12 - d)) / 0.12;
+					if (glow > 0.2) chr = glow > 0.6 ? ':' : '.';
 				}
 			}
 

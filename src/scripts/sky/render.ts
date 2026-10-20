@@ -5,6 +5,7 @@ import { bindInput, pointer, stepInput } from './input';
 import { cross, idx, norm } from './math';
 import { fbm, hash3 } from './noise';
 
+// Reduced motion: no automatic spin, comets or twinkling, but input stays at full frame rate
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Character ramps, dark → bright
@@ -40,7 +41,7 @@ function render(pre: HTMLElement, now: number) {
 	pointer.radius = Rp;
 	const ringLight =
 		0.35 + 0.45 * Math.abs(A[0] * L[0] + A[1] * L[1] + A[2] * L[2]);
-	const starT = Math.floor(t * 0.7);
+	const starT = reduce ? 0 : Math.floor(t * 0.7);
 
 	for (let r = 0; r < rows; r++) {
 		const row = cells[r];
@@ -138,7 +139,7 @@ export function startSky(pre: HTMLElement) {
 	let last = 0;
 	function loop(now: number) {
 		requestAnimationFrame(loop);
-		if (now - last < (reduce ? 2000 : 33)) return;
+		if (now - last < 33) return;
 		last = now;
 		render(pre, now);
 	}
